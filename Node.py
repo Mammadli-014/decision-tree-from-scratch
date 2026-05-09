@@ -61,3 +61,49 @@ def recursive_create_tree(X, Y, depth):
 
 def build_tree(X, Y, depth = 4):
     return recursive_create_tree(X, Y, depth)
+
+def quintile_threshold(X):
+    X_sorted= np.sort(X)
+    quintiles = np.linspace(0,100,6)[1:-1]
+    values= np.ones(len(quintiles))
+    a=0
+    for i in quintiles:
+        values[a] = np.round(np.percentile(X_sorted,i),2)
+        a = a+1
+    return values
+
+def info_gain_continuous(X, Y, feature_no, threshold):
+    if len(Y) <= 1:return 0
+    base_impurity = compute_impurity(Y)
+    feature_values=X[:,feature_no]
+
+    mask_left=feature_values>threshold
+    mask_right=feature_values<threshold
+
+    Y_left=Y[mask_left]
+    Y_right=Y[mask_right]
+
+    p_left = compute_impurity(Y_left)
+    p_right = compute_impurity(Y_right)
+
+    w_left=len(Y_left)/len(Y)
+    w_right=len(Y_right)/len(Y)
+
+    return base_impurity - (p_left*w_left + p_right*w_right)
+
+def best_Value(X,Y,feature_no,method):
+    values = method(X)
+    maxGain=0
+    bestValue=-1
+    for i in values:
+        if(info_gain_continuous(X,Y,feature_no,i) > maxGain):
+            maxGain=info_gain_continuous(X,Y,feature_no,i)
+            bestValue=i
+    print(maxGain)
+    print(bestValue)
+
+    def unique_threshold(X):
+        X_sorted = np.sort(X)
+        X_uniqued = np.unique(X_sorted)
+        thresholds = (X_uniqued[1:] + X_uniqued[:-1]) / 2
+        return thresholds
