@@ -64,7 +64,7 @@ def build_tree(X, Y, depth = 4):
 
 def quintile_threshold(X):
     X_sorted= np.sort(X)
-    quintiles = np.linspace(0,100,6)[1:-1]
+    quintiles = np.linspace(0,100,10)[1:-1]
     values= np.ones(len(quintiles))
     a=0
     for i in quintiles:
@@ -92,18 +92,22 @@ def info_gain_continuous(X, Y, feature_no, threshold):
     return base_impurity - (p_left*w_left + p_right*w_right)
 
 def best_Value(X,Y,feature_no,method):
-    values = method(X)
+    values = method(X[:,feature_no])
     maxGain=0
     bestValue=-1
     for i in values:
         if(info_gain_continuous(X,Y,feature_no,i) > maxGain):
             maxGain=info_gain_continuous(X,Y,feature_no,i)
             bestValue=i
-    print(maxGain)
-    print(bestValue)
+    return bestValue
 
-    def unique_threshold(X):
-        X_sorted = np.sort(X)
-        X_uniqued = np.unique(X_sorted)
-        thresholds = (X_uniqued[1:] + X_uniqued[:-1]) / 2
-        return thresholds
+def unique_threshold(X):
+    X_sorted = np.sort(X)
+    X_uniqued = np.unique(X_sorted)
+    thresholds = (X_uniqued[1:] + X_uniqued[:-1]) / 2
+    return thresholds
+
+def one_hot_encoding(X,Y,method):
+    for feature in range(X.shape[1]):
+        threshold=best_Value(X,Y,feature,method)
+        X[:,feature] = (X[:,feature] > threshold)
