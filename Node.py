@@ -1,12 +1,23 @@
 import numpy as np
 from scipy import stats as st
 
+
 class Node:
-    def __init__(self, feature=None, left=None, right=None, value=None):
+    thresholds = []
+
+    def __init__(self, feature=None, left=None, right=None, value=None, threshold=None):
         self.feature = feature
+        self.threshold = threshold
         self.left = left
         self.right = right
         self.value = value
+
+    def fillThreshold(self, X, Y, method):
+        m = X.shape[1]
+        Node.thresholds = [None] * m
+        for i in range(m):
+            bestValue = best_Value(X, Y, i, method)
+            Node.thresholds[i] = bestValue
 
 def compute_impurity(Y):
     impurity=.0
